@@ -7,7 +7,7 @@ class FastifyAppStack extends cdk.Stack {
   constructor(scope: cdk.App, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
-    const vpc = new ec2.Vpc(this, 'FastifyAppVpc', { maxAzs: 1 });
+    const vpc = new ec2.Vpc(this, 'FastifyAppVpc', { maxAzs: 2 });
     const cluster = new ecs.Cluster(this, 'FastifyAppCluster', { vpc });
 
     new ecs_patterns.ApplicationLoadBalancedFargateService(
