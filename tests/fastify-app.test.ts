@@ -17,4 +17,9 @@ test('FastifyApp Stack', () => {
       return isImageCorrect && isPortCorrect;
     }),
   );
+  expectCDK(stack).to(
+    haveResource('AWS::ApplicationAutoScaling::ScalingPolicy', (props: any) => {
+      return props.TargetTrackingScalingPolicyConfiguration.TargetValue === 70;
+    }),
+  );
 });

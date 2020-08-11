@@ -10,7 +10,7 @@ class FastifyAppStack extends cdk.Stack {
     const vpc = new ec2.Vpc(this, 'FastifyAppVpc', { maxAzs: 2 });
     const cluster = new ecs.Cluster(this, 'FastifyAppCluster', { vpc });
 
-    new ecs_patterns.ApplicationLoadBalancedFargateService(
+    const fargateService = new ecs_patterns.ApplicationLoadBalancedFargateService(
       this,
       'FastifyAppFargateService',
       {
@@ -21,6 +21,13 @@ class FastifyAppStack extends cdk.Stack {
         },
       },
     );
+
+    const scalling = fargateService.service.autoScaleTaskCount({ maxCapacity: 2 });
+    scalling.scaleOnCpuUtilization('CpuScaling', {
+      targetUtilizationPercent: 70,
+      scaleInCooldown: cdk.Duration.seconds(60),
+      scaleOutCooldown: cdk.Duration.seconds(60),
+    });
   }
 }
 

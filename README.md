@@ -9,7 +9,7 @@ Looking to build a infra that has the following.
 - [x] task definition
 - [x] ecs cluster
 - [x] application load balancer
-- [ ] auto scaling
+- [x] auto scaling
 - [ ] ci/cd with codepipeline
 - [ ] prod and homolog environments
 - [ ] get env variables from aws parameter store
