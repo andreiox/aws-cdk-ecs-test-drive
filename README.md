@@ -6,12 +6,33 @@ Taking AWS CDK for a spin!
 
 Looking to build a infra that has the following.
 
-- [ ] task definition
-- [ ] ecs cluster
-- [ ] application load balancer
+- [x] task definition
+- [x] ecs cluster
+- [x] application load balancer
 - [ ] auto scaling
 - [ ] ci/cd with codepipeline
 - [ ] prod and homolog environments
+- [ ] get env variables from aws parameter store
+
+## usage
+
+Outputs stack diff
+
+```bash
+npm run cdk diff
+```
+
+Deploy stack
+
+```bash
+npm run cdk deploy
+```
+
+Cleanup/Destroy stack
+
+```bash
+npm run cdk destroy
+```
 
 ## examples
 
