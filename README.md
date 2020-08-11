@@ -25,6 +25,8 @@ Looking to build a infra that has the following.
 -   [aws cdk pipelines](https://docs.aws.amazon.com/cdk/latest/guide/cdk_pipeline.html)
 -   [aws cdk best practices](https://github.com/kevinslin/open-cdk)
 -   [cdk-constans](https://github.com/kevinslin/cdk-constants)
+-   [testing infra with aws cdk](https://aws.amazon.com/blogs/developer/testing-infrastructure-with-the-aws-cloud-development-kit-cdk/)
+-   [testing constructs](https://cdkworkshop.com/20-typescript/70-advanced-topics/100-construct-testing.html)
 
 ## references aws general
 
