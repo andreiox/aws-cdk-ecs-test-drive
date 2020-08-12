@@ -22,6 +22,7 @@ class FastifyAppStack extends cdk.Stack {
       {
         cluster,
         taskImageOptions: {
+          containerName: 'fastify-app',
           containerPort: 3000,
           image: ecs.ContainerImage.fromRegistry('andreiox/fastify-test-drive'),
         },
@@ -57,6 +58,7 @@ class FastifyAppStack extends cdk.Stack {
 
     const buildArtifact = new codepipeline.Artifact();
     const buildProject = new codebuild.PipelineProject(this, 'FastifyAppBuild', {
+      projectName: 'fastify-app-build',
       environment: {
         computeType: codebuild.ComputeType.SMALL,
         buildImage: codebuild.LinuxBuildImage.STANDARD_4_0,
@@ -70,7 +72,7 @@ class FastifyAppStack extends cdk.Stack {
       },
     });
 
-    pipeline.addStage({
+    const buildStage = pipeline.addStage({
       stageName: 'Build',
       actions: [
         new codepipeline_actions.CodeBuildAction({
@@ -82,6 +84,20 @@ class FastifyAppStack extends cdk.Stack {
       ],
       placement: {
         justAfter: sourceStage,
+      },
+    });
+
+    pipeline.addStage({
+      stageName: 'Deploy',
+      actions: [
+        new codepipeline_actions.EcsDeployAction({
+          actionName: 'Deploy',
+          service: fargateService.service,
+          input: buildArtifact,
+        }),
+      ],
+      placement: {
+        justAfter: buildStage,
       },
     });
   }

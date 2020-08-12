@@ -10,7 +10,7 @@ Looking to build a infra that has the following.
 - [x] ecs cluster
 - [x] application load balancer
 - [x] auto scaling
-- [ ] ci/cd with codepipeline
+- [x] ci/cd with codepipeline
 - [ ] prod and homolog environments
 - [ ] get env variables from aws parameter store
 
@@ -48,8 +48,10 @@ npm run cdk destroy
 - [cdk-constans](https://github.com/kevinslin/cdk-constants)
 - [testing infra with aws cdk](https://aws.amazon.com/blogs/developer/testing-infrastructure-with-the-aws-cloud-development-kit-cdk/)
 - [testing constructs](https://cdkworkshop.com/20-typescript/70-advanced-topics/100-construct-testing.html)
+- [pipeline as code](https://cicd.serverlessworkshops.io/buildpipe/pipeascode.html)
 
 ## references aws general
 
 - [awesome-ecs](https://github.com/nathanpeck/awesome-ecs)
 - [vpc and subnets guide](https://docs.aws.amazon.com/vpc/latest/userguide/VPC_Subnets.html#vpc-subnet-basics)
+- [docker sample codebuild](https://docs.aws.amazon.com/codebuild/latest/userguide/sample-docker.html)
