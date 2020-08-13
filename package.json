@@ -1,9 +1,6 @@
 {
-  "name": "example",
-  "version": "0.1.0",
-  "bin": {
-    "example": "bin/example.js"
-  },
+  "name": "aws-cdk-ecs-test-drive",
+  "version": "1.0.0",
   "scripts": {
     "build": "tsc",
     "watch": "tsc -w",
