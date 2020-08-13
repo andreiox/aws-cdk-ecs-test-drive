@@ -18,14 +18,12 @@ class FastifyAppStack extends cdk.Stack {
     constructor(scope: cdk.App, id: string, props?: cdk.StackProps) {
         super(scope, id, props);
 
-        const vpc = new ec2.Vpc(this, 'FastifyAppVpc', { maxAzs: 2 });
-        const cluster = new ecs.Cluster(this, 'FastifyAppCluster', { vpc });
+        const vpc = new ec2.Vpc(this, 'vpc', { maxAzs: 2 });
+        const cluster = new ecs.Cluster(this, 'cluster', { vpc });
 
         const fargateService = this.createFargateService(cluster);
 
-        const pipeline = new codepipeline.Pipeline(this, 'FastifyAppPipeline', {
-            pipelineName: 'fastify-app-pipeline',
-        });
+        const pipeline = new codepipeline.Pipeline(this, 'appPipeline');
 
         const source = this.createSourceStage(pipeline);
         const build = this.createBuildStage(pipeline, source);
@@ -37,11 +35,11 @@ class FastifyAppStack extends cdk.Stack {
     ): ecs_patterns.ApplicationLoadBalancedFargateService {
         const fargateService = new ecs_patterns.ApplicationLoadBalancedFargateService(
             this,
-            'FastifyAppFargateService',
+            'fargateService',
             {
                 cluster,
                 taskImageOptions: {
-                    containerName: 'fastify-app',
+                    containerName: 'app',
                     containerPort: 3000,
                     image: ecs.ContainerImage.fromRegistry(
                         'andreiox/fastify-test-drive',
@@ -88,8 +86,7 @@ class FastifyAppStack extends cdk.Stack {
     createBuildStage(pipeline: codepipeline.Pipeline, source: StageInterface) {
         const artifact = new codepipeline.Artifact();
 
-        const buildProject = new codebuild.PipelineProject(this, 'FastifyAppBuild', {
-            projectName: 'fastify-app-build',
+        const buildProject = new codebuild.PipelineProject(this, 'appBuild', {
             environment: {
                 computeType: codebuild.ComputeType.SMALL,
                 buildImage: codebuild.LinuxBuildImage.STANDARD_4_0,
@@ -125,7 +122,7 @@ class FastifyAppStack extends cdk.Stack {
         pipeline: codepipeline.Pipeline,
         build: StageInterface,
         service: ecs.FargateService,
-    ) {
+    ): void {
         pipeline.addStage({
             stageName: 'Deploy',
             actions: [

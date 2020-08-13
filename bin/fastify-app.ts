@@ -7,9 +7,9 @@ dotenv.config();
 
 const app = new cdk.App();
 
-new FastifyAppStack(app, 'FastifyApp', {
-  env: {
-    account: process.env.AWS_ACCOUNT,
-    region: process.env.AWS_REGION,
-  },
+new FastifyAppStack(app, 'andreiox-fastify-dev', {
+    env: {
+        account: process.env.AWS_ACCOUNT,
+        region: process.env.AWS_REGION,
+    },
 });
