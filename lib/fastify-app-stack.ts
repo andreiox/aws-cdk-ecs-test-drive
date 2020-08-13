@@ -70,7 +70,7 @@ class FastifyAppStack extends cdk.Stack {
             actions: [
                 new codepipeline_actions.GitHubSourceAction({
                     actionName: 'GitHub',
-                    branch: 'aws-pipeline-support',
+                    branch: 'master',
                     output: artifact,
                     oauthToken: cdk.SecretValue.plainText(process.env.GITHUB_TOKEN!),
                     trigger: codepipeline_actions.GitHubTrigger.POLL,
@@ -87,6 +87,7 @@ class FastifyAppStack extends cdk.Stack {
         const artifact = new codepipeline.Artifact();
 
         const buildProject = new codebuild.PipelineProject(this, 'appBuild', {
+            buildSpec: codebuild.BuildSpec.fromObject(this.getFastifyAppBuildspec()),
             environment: {
                 computeType: codebuild.ComputeType.SMALL,
                 buildImage: codebuild.LinuxBuildImage.STANDARD_4_0,
@@ -136,6 +137,39 @@ class FastifyAppStack extends cdk.Stack {
                 justAfter: build.stage,
             },
         });
+    }
+
+    getFastifyAppBuildspec() {
+        return {
+            version: 0.2,
+            phases: {
+                pre_build: {
+                    commands: [
+                        'echo Logging in to Docker Hub...',
+                        'docker login -u $DOCKER_HUB_USER -p $DOCKER_HUB_PASSWORD',
+                    ],
+                },
+                build: {
+                    commands: [
+                        'echo Build started on `date`',
+                        'echo Building the Docker image...',
+                        'docker build -t $IMAGE_REPO_NAME:$IMAGE_TAG .',
+                        'docker tag $IMAGE_REPO_NAME:$IMAGE_TAG $IMAGE_REPO_NAME:$IMAGE_TAG',
+                    ],
+                },
+                post_build: {
+                    commands: [
+                        'echo Build completed on `date`',
+                        'echo Pushing the Docker image...',
+                        'docker push $IMAGE_REPO_NAME:$IMAGE_TAG',
+                        'printf \'[{"name":"fastify-app","imageUri":"%s"}]\' "$IMAGE_REPO_NAME:$IMAGE_TAG" > imagedefinitions.json',
+                    ],
+                },
+            },
+            artifacts: {
+                files: 'imagedefinitions.json',
+            },
+        };
     }
 }
 
