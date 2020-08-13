@@ -162,7 +162,7 @@ class FastifyAppStack extends cdk.Stack {
                         'echo Build completed on `date`',
                         'echo Pushing the Docker image...',
                         'docker push $IMAGE_REPO_NAME:$IMAGE_TAG',
-                        'printf \'[{"name":"fastify-app","imageUri":"%s"}]\' "$IMAGE_REPO_NAME:$IMAGE_TAG" > imagedefinitions.json',
+                        'printf \'[{"name":"app","imageUri":"%s"}]\' "$IMAGE_REPO_NAME:$IMAGE_TAG" > imagedefinitions.json',
                     ],
                 },
             },
