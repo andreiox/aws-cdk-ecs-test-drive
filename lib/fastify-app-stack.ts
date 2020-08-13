@@ -23,11 +23,7 @@ class FastifyAppStack extends cdk.Stack {
 
         const fargateService = this.createFargateService(cluster);
 
-        const pipeline = new codepipeline.Pipeline(this, 'appPipeline');
-
-        const source = this.createSourceStage(pipeline);
-        const build = this.createBuildStage(pipeline, source);
-        this.createDeployStage(pipeline, build, fargateService.service);
+        this.createCICDPipeline(fargateService);
     }
 
     createFargateService(
@@ -39,7 +35,6 @@ class FastifyAppStack extends cdk.Stack {
             {
                 cluster,
                 taskImageOptions: {
-                    containerName: 'app',
                     containerPort: 3000,
                     image: ecs.ContainerImage.fromRegistry(
                         'andreiox/fastify-test-drive',
@@ -60,6 +55,17 @@ class FastifyAppStack extends cdk.Stack {
             scaleInCooldown: cdk.Duration.seconds(60),
             scaleOutCooldown: cdk.Duration.seconds(60),
         });
+    }
+
+    createCICDPipeline(service: ecs_patterns.ApplicationLoadBalancedFargateService) {
+        const pipeline = new codepipeline.Pipeline(this, 'appPipeline');
+
+        const source = this.createSourceStage(pipeline);
+
+        const containerName = service.taskDefinition.defaultContainer!.containerName;
+        const build = this.createBuildStage(pipeline, source, containerName);
+
+        this.createDeployStage(pipeline, build, service.service);
     }
 
     createSourceStage(pipeline: codepipeline.Pipeline): StageInterface {
@@ -83,11 +89,17 @@ class FastifyAppStack extends cdk.Stack {
         return { artifact, stage };
     }
 
-    createBuildStage(pipeline: codepipeline.Pipeline, source: StageInterface) {
+    createBuildStage(
+        pipeline: codepipeline.Pipeline,
+        source: StageInterface,
+        containerName: string,
+    ): StageInterface {
         const artifact = new codepipeline.Artifact();
 
         const buildProject = new codebuild.PipelineProject(this, 'appBuild', {
-            buildSpec: codebuild.BuildSpec.fromObject(this.getFastifyAppBuildspec()),
+            buildSpec: codebuild.BuildSpec.fromObject(
+                this.getFastifyAppBuildspec(containerName),
+            ),
             environment: {
                 computeType: codebuild.ComputeType.SMALL,
                 buildImage: codebuild.LinuxBuildImage.STANDARD_4_0,
@@ -139,7 +151,7 @@ class FastifyAppStack extends cdk.Stack {
         });
     }
 
-    getFastifyAppBuildspec() {
+    getFastifyAppBuildspec(containerName: string): Record<string, unknown> {
         return {
             version: 0.2,
             phases: {
@@ -162,7 +174,7 @@ class FastifyAppStack extends cdk.Stack {
                         'echo Build completed on `date`',
                         'echo Pushing the Docker image...',
                         'docker push $IMAGE_REPO_NAME:$IMAGE_TAG',
-                        'printf \'[{"name":"app","imageUri":"%s"}]\' "$IMAGE_REPO_NAME:$IMAGE_TAG" > imagedefinitions.json',
+                        `printf '[{"name":"${containerName}","imageUri":"%s"}]' "$IMAGE_REPO_NAME:$IMAGE_TAG" > imagedefinitions.json`,
                     ],
                 },
             },
